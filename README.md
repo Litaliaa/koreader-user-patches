@@ -6,6 +6,10 @@ Displays progress, pages left, time left, highlights, notes, and battery percent
 
 See visual example [here](https://github.com/Litaliaa/koreader-user-patches/blob/26bca80498134863d2a637f16877e89a9e2b5708/Example%20of%20screensaver.JPG)
 
+**IMPORTANT:**
+- I made 2 versions of this patch for different fonts: "-inter.lua" and "-noto-sans.lua". Inter is what you see in the photo example. Noto sans is for anyone who hasn't changed their default UI font. 
+- If you use a custom UI font, you need to update the font on line 260 to whatever font you have as your UI font. If you want the same font that I have used (Inter), head to Google Fonts, download Inter for free and add it to your fonts file (I used "Inter_18pt-Regular.ttf").
+
 Based on the Book Receipt plugin by [Omer Faruq](https://github.com/omer-faruq).
 Modified and redesigned for a minimalist style by me (and mostly ChatGPT).
 **Original code:** Created by Reddit user [hundredpercentcocoa](https://www.reddit.com/user/hundredpercentcocoa/)
@@ -22,6 +26,3 @@ Modified and redesigned for a minimalist style by me (and mostly ChatGPT).
 - Added extra stats (reading time, page progress, pages left, time left, number of highlights and notes)
 - Tweaked styling for a cleaner look
 - Made progress % larger
-
-**IMPORTANT:**
-- Before using this patch, I recommend updating the font on line 260 to whatever font you have as your default. If you want the same font that I have used in my example, head to Google Fonts, download Inter for free and add it to your fonts file (I used "Inter_18pt-Regular.ttf").
