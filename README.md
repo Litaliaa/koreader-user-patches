@@ -4,7 +4,7 @@
 A clean, minimalist KOReader screensaver showing key reading statistics.
 Displays progress, pages left, time left, highlights, notes, and battery percentage.
 
-Based on the original Book Receipt plugin by [Omer Faruq](https://github.com/omer-faruq).
+Based on the Book Receipt plugin by [Omer Faruq](https://github.com/omer-faruq).
 Modified and redesigned for a minimalist style by me (and mostly ChatGPT).
 **Original code:** Created by Reddit user [hundredpercentcocoa](https://www.reddit.com/user/hundredpercentcocoa/)
 
