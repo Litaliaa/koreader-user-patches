@@ -32,19 +32,19 @@ local _ = require("gettext")
 
 local Screen = Device.screen 
 local T = ffiUtil.template
-local BOOK_RECEIPT_BG_SETTING = "book_receipt_screensaver_background"
-local BOOK_RECEIPT_BG_IMAGE_MODE_SETTING = "book_receipt_bg_image_mode"
+local MINIMAL_BOOK_STATS_BG_SETTING = "minimal_book_stats_screensaver_background"
+local MINIMAL_BOOK_STATS_BG_IMAGE_MODE_SETTING = "minimal_book_stats_bg_image_mode"
 
-local function getBookReceiptBackgroundDir()
+local function getMinimalBookStatsBackgroundDir()
     local base_dir = DataStorage:getDataDir()
     if not base_dir or base_dir == "" then
         return nil
     end
-    return string.format("%s/%s", base_dir, "book_receipt_background")
+    return string.format("%s/%s", base_dir, "minimal_book_stats_background")
 end
 
-local function pickRandomReceiptBackgroundImage()
-    local dir = getBookReceiptBackgroundDir()
+local function pickRandomMinimalStatsBackgroundImage()
+    local dir = getMinimalBookStatsBackgroundDir()
     if not dir or lfs.attributes(dir, "mode") ~= "directory" then
         return nil
     end
@@ -67,7 +67,7 @@ local function buildBackgroundImageWidget(image_path)
         return nil
     end
 
-    local mode = G_reader_settings:readSetting(BOOK_RECEIPT_BG_IMAGE_MODE_SETTING) or "stretch"
+    local mode = G_reader_settings:readSetting(MINIMAL_BOOK_STATS_BG_IMAGE_MODE_SETTING) or "stretch"
     if mode ~= "center" and mode ~= "stretch" and mode ~= "fit" then
         mode = "stretch"
     end
@@ -101,22 +101,22 @@ local function buildBackgroundImageWidget(image_path)
     return image_widget
 end
 
-local function getReceiptBackground()
-    local choice = G_reader_settings:readSetting(BOOK_RECEIPT_BG_SETTING) or "white"
+local function getMinimalStatsBackground()
+    local choice = G_reader_settings:readSetting(MINIMAL_BOOK_STATS_BG_SETTING) or "white"
 
     if choice == "transparent" then
         return nil, nil
     elseif choice == "black" then
         return Blitbuffer.COLOR_BLACK, nil
     elseif choice == "random_image" then
-        local image_path = pickRandomReceiptBackgroundImage()
+        local image_path = pickRandomMinimalStatsBackgroundImage()
         if image_path then
             local widget = buildBackgroundImageWidget(image_path)
             if widget then
                 return nil, widget
             end
         end
-        logger.warn("Book receipt: no background image found, falling back to transparent")
+        logger.warn("Minimal book stats: no background image found, falling back to transparent")
         return nil, nil
     end
 
@@ -127,7 +127,7 @@ local function hasActiveDocument(ui)
     return ui and ui.document ~= nil
 end
 
-local function getBookReceiptFallbackType()
+local function getMinimalBookStatsFallbackType()
     local random_dir = G_reader_settings:readSetting("screensaver_dir")
     if random_dir and lfs.attributes(random_dir, "mode") == "directory" then
         return "random_image"
@@ -154,8 +154,8 @@ local function getEventFromPrefix(prefix)
 end
 
 local function showFallbackScreensaver(self, orig_show)
-    local fallback_type = getBookReceiptFallbackType()
-    logger.dbg("Book receipt: using fallback screensaver", fallback_type)
+    local fallback_type = getMinimalBookStatsFallbackType()
+    logger.dbg("Minimal book stats: using fallback screensaver", fallback_type)
 
     local original_type = self.screensaver_type
     local event = getEventFromPrefix(self.prefix)
@@ -195,7 +195,7 @@ local function showFallbackScreensaver(self, orig_show)
     self.screensaver_type = original_type
 end
 
-local function buildReceipt(ui, state)
+local function buildMinimalBookStats(ui, state)
     if not ui or not ui.document then return nil end
 
     local doc_props = ui.doc_props or {}
@@ -263,7 +263,6 @@ local function buildReceipt(ui, state)
     local db_padding = 40
     local db_padding_internal = 20
 
-    -- Stats row helper
     local function statsRow(label, value)
         local left = TextWidget:new{
             text = label,
@@ -284,14 +283,11 @@ local function buildReceipt(ui, state)
         }
     end
 
-    -- Progress bar + stats box
     local function databox(pages_done, pages_total, time_left_text, statistics)
         local denom = pages_total > 0 and pages_total or 1
         local percentage_value = math.max(math.min(pages_done / denom, 1), 0)
 
         local children = {}
-
-        -- Progress % display
         local progress_percent = TextWidget:new{
             text = string.format("%i%%", math.floor(percentage_value * 100 + 0.5)),
             face = Font:getFace("cfont", db_font_size_big),
@@ -301,7 +297,6 @@ local function buildReceipt(ui, state)
         table.insert(children, progress_percent)
         table.insert(children, VerticalSpan:new{ width = db_padding_internal })
 
-        -- Progress bar
         local progress_bar = ProgressWidget:new{
             width = widget_width,
             height = Screen:scaleBySize(10),
@@ -316,7 +311,6 @@ local function buildReceipt(ui, state)
         table.insert(children, progress_bar)
         table.insert(children, VerticalSpan:new{ width = db_padding_internal })
 
-        -- Stats table
         local stats_children = {}
         if statistics then
             table.insert(stats_children, statsRow("Reading time:", secs_to_timestring(statistics.book_read_time or 0)))
@@ -333,7 +327,6 @@ local function buildReceipt(ui, state)
         return VerticalGroup:new(children)
     end
 
-    -- Book cover
     local cover_widget
     if ui.bookinfo and ui.document then
         local cover_bb = ui.bookinfo:getCoverImage(ui.document)
@@ -361,7 +354,6 @@ local function buildReceipt(ui, state)
 
     local bookbox = databox(page_no, page_total, book_time_left, statistics)
 
-    -- Battery display (bottom)
     local batt_pct_box = TextWidget:new{
         text = battery,
         face = Font:getFace("cfont", db_font_size_small),
@@ -371,7 +363,6 @@ local function buildReceipt(ui, state)
         align = "center",
     }
 
-    -- Assemble layout
     local content_children = {}
 
     if cover_widget then
@@ -400,24 +391,21 @@ local function buildReceipt(ui, state)
     }
 end
 
-
-
-
 local quicklookbox = InputContainer:extend{  
     modal = true,  
-    name = "quick_look_box",  
+    name = "minimal_quick_look",  
 }  
 
 function quicklookbox:init()
-    local receipt_widget = buildReceipt(self.ui, self.state)
-    if receipt_widget then
-        self[1] = receipt_widget
+    local widget = buildMinimalBookStats(self.ui, self.state)
+    if widget then
+        self[1] = widget
     else
-        logger.warn("Book receipt: failed to build quick look widget")
+        logger.warn("Minimal book stats: failed to build quick look widget")
         self[1] = CenterContainer:new{
             dimen = Screen:getSize(),
             TextWidget:new{
-                text = _("Receipt unavailable"),
+                text = _("Minimal book stats unavailable"),
                 face = Font:getFace("cfont", 20),
             },
         }
@@ -454,14 +442,11 @@ end
 
 function quicklookbox:onSwipe(arg, ges_ev)
     if ges_ev.direction == "south" then
-        -- Allow easier closing with swipe up/down
         self:onClose()
     elseif ges_ev.direction == "east" or ges_ev.direction == "west" or ges_ev.direction == "north" then
-        self:onClose()-- -- no use for now
-        -- do end -- luacheck: ignore 541
-    else -- diagonal swipe
-		self:onClose()
-
+        self:onClose()
+    else
+        self:onClose()
     end
 end
 
@@ -471,16 +456,14 @@ function quicklookbox:onClose()
 end
 
 quicklookbox.onAnyKeyPressed = quicklookbox.onClose
-
 quicklookbox.onMultiSwipe = quicklookbox.onClose
 
--- add to dispatcher
-
-Dispatcher:registerAction("quicklookbox_action", {
-							category="none", 
-							event="QuickLook", 
-							title=_("Book receipt"), 
-							reader=true,})
+Dispatcher:registerAction("minimal_quicklook_action", {
+    category="none",
+    event="QuickLook",
+    title=_("Minimal Book Stats"),
+    reader=true,
+})
 
 function ReaderUI:onQuickLook()
     local widget = quicklookbox:new{
@@ -491,15 +474,13 @@ function ReaderUI:onQuickLook()
     UIManager:show(widget)
 end
 
--- Screensaver integration
-
 local Screensaver = require("ui/screensaver")
 
 local orig_screensaver_show = Screensaver.show
 
 Screensaver.show = function(self)
-    if self.screensaver_type == "book_receipt" then
-        logger.dbg("Book receipt: screensaver activated")
+    if self.screensaver_type == "minimal_book_stats" then
+        logger.dbg("Minimal book stats: screensaver activated")
 
         if self.screensaver_widget then
             UIManager:close(self.screensaver_widget)
@@ -518,41 +499,37 @@ Screensaver.show = function(self)
 
         local ui = self.ui or ReaderUI.instance
         local state = ui and ui.view and ui.view.state
-        local receipt_widget = buildReceipt(ui, state)
+        local widget = buildMinimalBookStats(ui, state)
 
-        if receipt_widget then
-            local background_color, background_widget = getReceiptBackground()
-            local widget_to_show = receipt_widget
-
-            if background_widget then
+        if widget then
+            local bg_color, bg_widget = getMinimalStatsBackground()
+            local widget_to_show = widget
+            if bg_widget then
                 widget_to_show = OverlapGroup:new{
                     dimen = Screen:getSize(),
-                    background_widget,
-                    receipt_widget,
+                    bg_widget,
+                    widget,
                 }
             end
 
             self.screensaver_widget = ScreenSaverWidget:new{
                 widget = widget_to_show,
-                background = background_color,
+                background = bg_color,
                 covers_fullscreen = true,
             }
             self.screensaver_widget.modal = true
             self.screensaver_widget.dithered = true
             UIManager:show(self.screensaver_widget, "full")
         else
-            logger.warn("Book receipt: failed to build widget, falling back to default screensaver")
-            showFallbackScreensaver(self, orig_screensaver_show)
+            logger.warn("Minimal book stats: failed to build widget, falling back to default screensaver")
+            orig_screensaver_show(self)
         end
 
         return
     end
 
-    logger.dbg("Book receipt: no active document, using fallback screensaver")
-    showFallbackScreensaver(self, orig_screensaver_show)
+    orig_screensaver_show(self)
 end
-
--- Add screensaver menu option
 
 local orig_dofile = dofile
 
@@ -560,49 +537,38 @@ _G.dofile = function(filepath)
     local result = orig_dofile(filepath)
 
     if filepath and filepath:match("screensaver_menu%.lua$") then
-        logger.dbg("Book receipt: patching screensaver menu")
+        logger.dbg("Minimal book stats: patching screensaver menu")
 
         if result and result[1] and result[1].sub_item_table then
             local wallpaper_submenu = result[1].sub_item_table
-
-            local function genMenuItem(text, setting, value, enabled_func, separator)
+            local function genMenuItem(text, setting, value)
                 return {
                     text = text,
-                    enabled_func = enabled_func,
-                    checked_func = function()
-                        return G_reader_settings:readSetting(setting) == value
-                    end,
-                    callback = function()
-                        G_reader_settings:saveSetting(setting, value)
-                    end,
+                    checked_func = function() return G_reader_settings:readSetting(setting) == value end,
+                    callback = function() G_reader_settings:saveSetting(setting, value) end,
                     radio = true,
-                    separator = separator,
                 }
             end
 
             table.insert(wallpaper_submenu, 6,
-                genMenuItem(_("Show book receipt on sleep screen"), "screensaver_type", "book_receipt")
+                genMenuItem(_("Show minimal book stats on sleep screen"), "screensaver_type", "minimal_book_stats")
             )
 
             table.insert(wallpaper_submenu, 7, {
-                text = _("Book receipt background"),
-                enabled_func = function()
-                    return G_reader_settings:readSetting("screensaver_type") == "book_receipt"
-                end,
+                text = _("Minimal book stats background"),
+                enabled_func = function() return G_reader_settings:readSetting("screensaver_type") == "minimal_book_stats" end,
                 sub_item_table = {
-                    genMenuItem(_("White fill"), BOOK_RECEIPT_BG_SETTING, "white"),
-                    genMenuItem(_("Transparent"), BOOK_RECEIPT_BG_SETTING, "transparent"),
-                    genMenuItem(_("Black fill"), BOOK_RECEIPT_BG_SETTING, "black"),
-                    genMenuItem(_("Random image"), BOOK_RECEIPT_BG_SETTING, "random_image"),
+                    genMenuItem(_("White fill"), MINIMAL_BOOK_STATS_BG_SETTING, "white"),
+                    genMenuItem(_("Transparent"), MINIMAL_BOOK_STATS_BG_SETTING, "transparent"),
+                    genMenuItem(_("Black fill"), MINIMAL_BOOK_STATS_BG_SETTING, "black"),
+                    genMenuItem(_("Random image"), MINIMAL_BOOK_STATS_BG_SETTING, "random_image"),
                     {
                         text = _("Random image placement"),
-                        enabled_func = function()
-                            return G_reader_settings:readSetting(BOOK_RECEIPT_BG_SETTING) == "random_image"
-                        end,
+                        enabled_func = function() return G_reader_settings:readSetting(MINIMAL_BOOK_STATS_BG_SETTING) == "random_image" end,
                         sub_item_table = {
-                            genMenuItem(_("Fit to screen"), BOOK_RECEIPT_BG_IMAGE_MODE_SETTING, "fit"),
-                            genMenuItem(_("Stretch to screen"), BOOK_RECEIPT_BG_IMAGE_MODE_SETTING, "stretch"),
-                            genMenuItem(_("Center without scaling"), BOOK_RECEIPT_BG_IMAGE_MODE_SETTING, "center"),
+                            genMenuItem(_("Fit to screen"), MINIMAL_BOOK_STATS_BG_IMAGE_MODE_SETTING, "fit"),
+                            genMenuItem(_("Stretch to screen"), MINIMAL_BOOK_STATS_BG_IMAGE_MODE_SETTING, "stretch"),
+                            genMenuItem(_("Center without scaling"), MINIMAL_BOOK_STATS_BG_IMAGE_MODE_SETTING, "center"),
                         },
                     },
                 },
@@ -612,4 +578,3 @@ _G.dofile = function(filepath)
 
     return result
 end
-
