@@ -13,7 +13,7 @@ Modified and redesigned for a minimalist style by me (and mostly ChatGPT).
 **Features:**
 - Can be set as screensaver/sleep screen (Settings > Screen > Sleep Screen > Wallpaper > Show minimal book stats on sleep screen)
 - When added as wallpaper, it provides background color options (white/black/transparent/random image)
-- Selecting the random image option searches for a `book_receipt_background` folder under the `koreader` folder and randomly picks one of its images as the background; if the folder is missing, the background defaults to transparent
+- Selecting the random image option searches for a `book_receipt_background` folder under the `koreader` folder and randomly picks one of its images as the background; if the folder is missing, the background defaults to transparent. (Note: this feature may be broken as I changed the original 'book receipt' name to 'minimal book stats' and haven't tested this feature)
 
 **Modifications in this fork:**
 – Renamed from "book receipt" to "minimal book stats"
@@ -22,3 +22,6 @@ Modified and redesigned for a minimalist style by me (and mostly ChatGPT).
 - Added extra stats (reading time, page progress, pages left, time left, number of highlights and notes)
 - Tweaked styling for a cleaner look
 - Made progress % larger
+
+**IMPORTANT:**
+- Before using this patch, I recommend updating the font on line 260 to whatever font you have as your default. If you want the same font that I have used, head to Google Fonts, download Inter and add it to your fonts file. (I used "Inter_18pt-Regular.ttf")
