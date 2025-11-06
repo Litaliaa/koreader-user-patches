@@ -257,7 +257,7 @@ local function buildMinimalBookStats(ui, state)
     local widget_width = Screen:getWidth() / 2
     local db_font_color = Blitbuffer.COLOR_BLACK
     local db_font_color_lightest = Blitbuffer.COLOR_GRAY_9
-    local db_font_face = "Inter_24pt-Regular.ttf"
+    local db_font_face = Font.fontmap["smallinfofont"] or Font.fontmap["infofont"] or "NotoSans-Regular.ttf"
     local db_font_size_big = 25
     local db_font_size_small = 15
     local db_padding = 40
