@@ -22,4 +22,4 @@ Modified and redesigned for a minimalist style by me (and mostly ChatGPT).
 - Added extra stats (reading time, page progress, pages left, time left, number of highlights and notes)
 - Tweaked styling for a cleaner look
 - Made progress % larger
-- Modified code to work with default UI font (no need to edit the code)
+- Modified code to work with default UI font (no need to edit the code). This pairs nicely with [2--ui-font.lua](https://github.com/sebdelsol/KOReader.patches/blob/0a2a57b44847f23e5db5db5edcc7a1cc0fc94dd0/2--ui-font.lua) to choose what font you want for your UI. Note that I'm not the developer of 2--ui-font.lua so I can't guarantee it will work for you.
