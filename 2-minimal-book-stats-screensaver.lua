@@ -98,7 +98,7 @@ local function buildBackgroundImageWidget(image_path)
         }
     end
 
-    return image_widget
+    return final_frame
 end
 
 local function getMinimalStatsBackground()
@@ -333,10 +333,18 @@ local function buildMinimalBookStats(ui, state)
         if cover_bb then
             local cover_width_orig = cover_bb:getWidth()
             local cover_height_orig = cover_bb:getHeight()
-            local fixed_width = widget_width
-            local scale = fixed_width / cover_width_orig
+
+            local max_width = widget_width
+            local max_height = Screen:getHeight() * 0.40
+
+            local scale_w = max_width / cover_width_orig
+            local scale_h = max_height / cover_height_orig
+
+            local scale = math.min(scale_w, scale_h)
+
             local scaled_width = math.max(1, math.floor(cover_width_orig * scale))
             local scaled_height = math.max(1, math.floor(cover_height_orig * scale))
+
             cover_bb = RenderImage:scaleBlitBuffer(cover_bb, scaled_width, scaled_height, true)
 
             cover_widget = FrameContainer:new{
